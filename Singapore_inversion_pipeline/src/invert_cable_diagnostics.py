@@ -113,10 +113,6 @@ def summarize_channel_control_quality(obs: pd.DataFrame) -> pd.DataFrame:
     Compute S_k = sum of observation weights for each channel.
 
     This is the control quality score used to rank candidate control points.
-    A channel seen by many transmissions with high-quality detections scores
-    high; a channel with few or low-weight observations scores low.
-    Channels with high S_k make good control points because they combine
-    coverage with quality — the two things a good representative channel needs.
     """
     grp = (
         obs.groupby("channel_eff")
@@ -129,9 +125,7 @@ def summarize_channel_control_quality(obs: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
         .rename(columns={"channel_eff": "channel"})
     )
-    # Expose S_k as control_quality_score so downstream code
-    # (choose_control_channels_by_quality, plots) works unchanged.
-    #grp["control_quality_score"] = grp["S_k"]
+
     grp["control_quality_score"] = grp["S_k"] / max(float(grp["S_k"].max()), 1e-9)
     return grp.sort_values("channel").reset_index(drop=True)
 
@@ -169,9 +163,6 @@ def choose_control_channels_by_quality(
     channels from any already-selected channel, then repeats. Channels
     with S_k below quality_threshold are skipped. After selection, a
     gap-filling pass ensures no gap exceeds max_gap channels.
-
-    quality_threshold is expressed in the same units as S_k (sum of weights),
-    not a normalised [0,1] score.
     """
     full_channels = np.asarray(full_channels, dtype=int)
     start = int(full_channels.min())
@@ -307,27 +298,13 @@ def solve_inversion(
     tx_xyz = obs[["tx_x_m", "tx_y_m", "tx_u_m"]].values.astype(float)
     obs_t_rel = obs["observed_dt_ref_s"].values.astype(float)
 
-    # ------------------------------------------------------------------
-    # Adaptive per-control-point prior sigma based on S_k.
-    #
-    # prior_sigma_xy / prior_sigma_z are the base values, interpreted as
-    # the allowed displacement at a control point with *average* observation
-    # density.  Control points in well-observed regions (high S_k) get a
-    # proportionally larger sigma (more freedom); control points in poorly-
-    # observed or gap-filled regions (low S_k) get a smaller sigma (tighter
-    # anchor to the prior).
-    #
-    # Gap-filled control points that have no observations at all receive
-    # the minimum S_k seen among observed control points, making them
-    # maximally conservative.
-    # ------------------------------------------------------------------
     sk_lookup = channel_quality_df.set_index("channel")["S_k"]
     sk_ctrl = np.array(
         [float(sk_lookup.get(int(c), 0.0)) for c in control_channels],
         dtype=float,
     )
 
-    # Separate truly observed from gap-filled (S_k == 0)
+
     observed_mask = sk_ctrl > 1e-6
     if np.any(observed_mask):
         sk_min_observed = float(sk_ctrl[observed_mask].min())
@@ -336,11 +313,9 @@ def solve_inversion(
         sk_min_observed = 1.0
         sk_mean = 1.0
 
-    # Gap-filled points get the minimum observed S_k → tightest prior
     sk_ctrl = np.where(observed_mask, sk_ctrl, sk_min_observed)
 
-    # Scale relative to the mean so that prior_sigma_xy is the sigma at
-    # an average-density control point
+
     sk_scale = sk_ctrl / sk_mean
     prior_sigma_xy_ctrl = prior_sigma_xy * sk_scale   # shape (n_ctrl,)
     prior_sigma_z_ctrl  = prior_sigma_z  * sk_scale   # shape (n_ctrl,)
@@ -412,7 +387,7 @@ def solve_inversion(
         ) / sound_speed
         rel_res = sqrtw * huber_scale((obs_t_rel - pred_rel) / rel_scale, huber_delta_rel)
 
-        # Adaptive prior penalty: sigma scales with local S_k
+
         dxyz = ctrl_xyz - prior_xyz_ctrl
         prior_pen = np.concatenate([
             dxyz[:, 0] / prior_sigma_xy_ctrl,
