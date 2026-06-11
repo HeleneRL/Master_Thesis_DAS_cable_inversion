@@ -217,14 +217,14 @@ def main() -> None:
     smooth_df = smooth_df.merge(disagreement, on=["location", "channel"], how="left")
 
     # ------------------------------------------------------------------
-    # Save outputs (internal names unchanged for downstream joining)
+    # Save outputs
     # ------------------------------------------------------------------
     smooth_df.to_csv(outdir / "channel_smooth_curves.csv", index=False)
     loc_median.to_csv(outdir / "location_median_smooth.csv", index=False)
     disagreement.to_csv(outdir / "anchor_disagreement.csv", index=False)
 
     # ------------------------------------------------------------------
-    # Diagnostic: smoothed arrival curves — reader labels Location N / Sweep N
+    # Diagnostic: smoothed arrival curves
     # ------------------------------------------------------------------
     plot_dir = ensure_dir(outdir / "plots")
     n_loc = len(locations)
