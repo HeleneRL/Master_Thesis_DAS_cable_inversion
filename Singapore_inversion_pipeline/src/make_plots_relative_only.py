@@ -28,7 +28,7 @@ CABLE_BLUE = "#1f77b4"
 
 
 # ---------------------------------------------------------------------------
-# Naming helpers — single source of truth
+# Naming helpers 
 # ---------------------------------------------------------------------------
 
 def format_location(raw_location: str) -> str:
@@ -880,20 +880,7 @@ def plot_angular_diversity(fit: pd.DataFrame, layout: pd.DataFrame, out_png: Pat
 
 
 
-# ---------------------------------------------------------------------------
-# Remaining existing plots
-# ---------------------------------------------------------------------------
 
-# def plot_horizontal_shift(layout, out_png):
-#     fig, ax = plt.subplots(figsize=(13, 5.2))
-#     shift = np.sqrt(
-#         (pd.to_numeric(layout["x_m"],       errors="coerce") - pd.to_numeric(layout["prior_x_m"], errors="coerce")) ** 2
-#         + (pd.to_numeric(layout["y_m"],     errors="coerce") - pd.to_numeric(layout["prior_y_m"], errors="coerce")) ** 2
-#     )
-#     ax.plot(layout["channel"], shift, linewidth=2.1, color=CABLE_BLUE)
-#     ax.set_xlabel("Channel"); ax.set_ylabel("Horizontal shift (m)")
-#     ax.set_title("Horizontal displacement from prior"); ax.grid(True, alpha=0.25)
-#     fig.tight_layout(); fig.savefig(out_png); plt.close(fig)
 
 
 def plot_horizontal_shift(layout, out_png):
@@ -934,20 +921,7 @@ def plot_horizontal_shift(layout, out_png):
     plt.close(fig)
 
 
-# def plot_distance_to_truth(layout, truth, out_png):
-#     truth_s = cumulative_arclength(truth["x_m"], truth["y_m"])
-#     xy_err, _, _, _ = project_points_onto_polyline(
-#         layout["x_m"].to_numpy(dtype=float), layout["y_m"].to_numpy(dtype=float),
-#         truth["x_m"].to_numpy(dtype=float),  truth["y_m"].to_numpy(dtype=float),
-#         s_line=truth_s,
-#     )
-#     fig, ax = plt.subplots(figsize=(13, 5.0))
-#     ax.plot(layout["channel"], xy_err, linewidth=2.1, color=CABLE_BLUE)
-#     ax.set_xlabel("Channel")
-#     ax.set_ylabel("Horizontal distance to reference geometry (m)")
-#     ax.set_title("Difference between estimated cable and reference geometry")
-#     ax.grid(True, alpha=0.25)
-#     fig.tight_layout(); fig.savefig(out_png); plt.close(fig)
+
 
 def plot_distance_to_truth(layout, truth, out_png):
     truth_s = cumulative_arclength(truth["x_m"], truth["y_m"])
