@@ -11,34 +11,40 @@
    Signal Processing and Communications,
    Department of Electronic Systems, NTNU, Spring 2026.
 
- This repository is the code appendix referenced in the thesis.
+ This repository is referenced to in the appendix in the thesis.
 
 
 -------------------------------------------------------------------------------
- IMPORTANT: SCOPE OF THIS REPOSITORY
+ SCOPE OF THIS REPOSITORY!
 -------------------------------------------------------------------------------
 
  This repository contains ONLY the Singapore inversion pipeline.
 
  The thesis evaluates the inversion framework on two datasets: the Singapore
  2 km cable loop and the Trondheimsfjord deployment. Only the Singapore
- pipeline is published here, and this is a deliberate choice.
+ pipeline is published here. This is a deliberate choice.
 
  The framework is built around a dataset-INDEPENDENT inversion core (the
  "inversion block" in Figure 4.1.1 of the thesis) that is identical for every
  dataset. What differs from one dataset to the next is only the front-end:
  how raw DAS recordings are turned into the three inputs the inversion block
  needs (a prior cable geometry, source positions per transmission, and
- weighted relative arrival times). Publishing one complete, working front-end
- (Singapore) plus the generic core is therefore enough to show the whole
- method. Shipping several near-duplicate copies of the generic block, one per
- dataset, would add no information.
+ weighted relative arrival times). 
 
- If you want to run this on your OWN data, you do not need a second version of
- the pipeline. You adapt the Singapore front-end to your acquisition (your
- detector template, your source-position source, your prior construction) and
+ If you want to run this on your OWN data, you need to adapt the Singapore front-end to your acquisition (your
+ detector template, your source-position source, your prior construction) and then you can
  reuse the same inversion core. See the per-dataset notes in
  Singapore_inversion_pipeline/README.md.
+
+-------------------------------------------------------------------------------
+ INPUT DATA NOT INCLUDED
+-------------------------------------------------------------------------------
+
+ The raw DAS recordings, GPS tracks and prior geometry files are NOT part of
+ this repository. The Singapore dataset was shared by collaborators at NUS and
+ is not redistributed here. To reproduce the thesis results you need the
+ original data. To run on your own data, supply the equivalent files and point
+ the config at them.
 
 
 -------------------------------------------------------------------------------
@@ -50,26 +56,23 @@
        src/                          All pipeline stages + the solver.
        README.md                     Detailed pipeline documentation.
 
-   Useful_helper_scripts/            Stand-alone analysis / QC scripts used
-                                     while producing the thesis figures.
+   Useful_helper_scripts/            Stand-alone analysis / QC scripts
                                      These are NOT part of the core inversion
-                                     and are not needed to reproduce the
-                                     cable estimate. See the header docstring
-                                     in each script for usage.
+                                   
 
    README.txt                        This file.
 
 
 -------------------------------------------------------------------------------
- WHAT THE PIPELINE DOES (high level)
+ WHAT THE PIPELINE DOES (very high level)
 -------------------------------------------------------------------------------
 
  The pipeline estimates the 3D geometry of a submarine fiber-optic cable from
  the direct-wave arrival times of known acoustic transmissions recorded by a
  DAS system. In order, it:
 
-   1. Detects arrivals in the raw DAS recordings with a matched filter and
-      scores each pick (detector_bulk.py).
+   1. Detects arrivals in the raw DAS recordings with a matched filter 
+      (detector_bulk.py).
    2. Matches transmission timestamps to source GPS positions
       (build_transmitter_positions.py).
    3. Builds a channel-indexed prior cable geometry
@@ -82,7 +85,7 @@
       control points joined by a cubic spline, and a Trust-Region Reflective
       least-squares solver balances data fit against prior, curvature and
       spacing regularization (invert_cable_diagnostics.py).
-   7. Produces the thesis figures (make_plots_relative_only.py).
+   7. Produces figures (make_plots_relative_only.py).
 
  Full method details are in Chapter 4 of the thesis.
 
@@ -91,10 +94,9 @@
  QUICK START
 -------------------------------------------------------------------------------
 
- Requires Python 3.11+ (3.12 tested). Install dependencies:
+ Requires Python 3.11+ . Install dependencies:
 
-   pip install numpy pandas scipy matplotlib h5py pymap3d
-   # optional: pyproj (lat/lon output), tomli (only on Python < 3.11)
+   pip install numpy pandas scipy matplotlib h5py pymap3d pyproj
 
  Edit the file paths in
    Singapore_inversion_pipeline/config/pipeline_config.toml
@@ -112,8 +114,7 @@
 
  Everything that is dataset-specific lives in
    Singapore_inversion_pipeline/config/pipeline_config.toml
- The shipped file is filled in with the Singapore values used to produce the
- thesis results. To run on your own data, the items below MUST be reviewed.
+ To run on your own data, the items below MUST be reviewed.
 
  1. FILE PATHS  -- [paths] section. These are Windows paths from the original
     machine (e.g. 'D:\Singapore Data\...') and WILL NOT exist on your system.
@@ -135,9 +136,7 @@
                                  (also used as the "truth-like" geometry in
                                   the plots).
 
-    NOTE: the output directories are created automatically; the input files
-    above must exist and have the expected columns (the scripts will raise a
-    clear error listing any missing columns).
+    NOTE: the input files above must exist and have the expected columns 
 
  2. ENU ORIGIN  -- [inversion_dataset] section. The local East-North-Up
     coordinate origin is set to Singapore:
@@ -159,7 +158,7 @@
     LFM sweep (lfm_f0_hz, lfm_f1_hz, lfm_duration_s) and a 25 kHz sample rate.
     Change to match your transmitted signal and acquisition.
 
- 6. PHYSICAL / SOLVER PARAMETERS  -- review for your cable:
+ 6. PHYSICAL / SOLVER PARAMETERS :
       sound_speed        (1500 m/s nominal seawater, Singapore)
       channel_spacing    (1.02 m, the DAS gauge spacing)
       prior_sigma_xy / prior_sigma_z      how far the cable may move from the
@@ -170,16 +169,6 @@
     The meaning of each is documented inline in the config and in Section 4.8
     and Table 4.8.1 of the thesis.
 
-
--------------------------------------------------------------------------------
- INPUT DATA NOT INCLUDED
--------------------------------------------------------------------------------
-
- The raw DAS recordings, GPS tracks and prior geometry files are NOT part of
- this repository. The Singapore dataset was shared by collaborators at NUS and
- is not redistributed here. To reproduce the thesis results you need the
- original data; to run on your own data, supply the equivalent files and point
- the config at them.
 
 
 -------------------------------------------------------------------------------
