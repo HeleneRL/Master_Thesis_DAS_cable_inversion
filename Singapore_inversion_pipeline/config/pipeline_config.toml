@@ -1,0 +1,156 @@
+[paths]
+data_root = 'D:\Singapore Data'
+raw_detection_output_dir = 'D:\Singapore Data\processed_outputs\methods\raw_detections'
+trust_output_dir = 'D:\Singapore Data\processed_outputs\methods\trust'
+transmitter_output_dir = 'D:\Singapore Data\processed_outputs\methods\transmitter'
+prior_output_dir = 'D:\Singapore Data\processed_outputs\methods\prior_geometry'
+inversion_dataset_output_dir = 'D:\Singapore Data\processed_outputs\methods\inversion_dataset'
+inversion_output_dir = 'D:\Singapore Data\processed_outputs\methods\inversion'
+
+sweep_times_csv = 'D:\Singapore Data\transmission_times_sweeps.txt'
+tx_gps_csv = 'D:\Singapore Data\tx gps\20260107-114125 - Lf comms track das 20260107.txt'
+boattrack_csv = 'D:\Singapore Data\Cable\boattrack_estimate_hari.csv'
+cable_estimate_csv = 'D:\Singapore Data\array-shape.csv'
+
+[detector]
+locations_to_process = ['loc2_tx3', 'loc3_tx1', 'loc4_tx1', 'loc5_tx1', 'loc6_tx1', 'loc7_tx1']
+channel_start = 0
+max_channel_exclusive = 3000
+channel_block_size = 32
+fs_nominal_hz = 25000.0
+lfm_f0_hz = 3500.0
+lfm_f1_hz = 4500.0
+lfm_duration_s = 5.0
+reference_window = 'hann'
+search_before_s = 0.1
+search_after_s = 0.4
+peak_threshold_snr = 4.0
+warn_if_peak_within_s = 0.005
+correlation_method = 'fft'
+second_peak_exclusion_s = 0.06
+
+[trust]
+channel_min = 348
+channel_max = 2267
+rolling_median_win = 41
+rolling_mean_win = 61
+min_valid_points_per_group = 25
+# min_periods is derived as max(3, max(rolling_median_win, rolling_mean_win) // 5)
+# but can be set explicitly here to override
+# min_periods = 8
+
+[transmitter]
+tx_depth_m = -3.0
+
+[prior_geometry]
+channel_spacing_m = 1.02
+first_channel = 348
+last_channel = 2267
+smooth_depth = false
+smooth_window_m = 15.0
+min_window_samples = 3
+depth_smooth_sigma_channels = 20.0
+
+[inversion_dataset]
+channel_min = 348
+channel_max = 2267
+enu_lat0_deg = 1.2160
+enu_lon0_deg = 103.8518
+enu_h0_m = 0.0
+
+# Weight factor 1: pick quality floor for invalid/edge detections
+pick_quality_floor = 0.05
+
+# Weight factor 2: Gaussian sigma for residual of pick to location median
+# smooth curve (milliseconds).  Set by inspecting the spread of picks around
+# the smooth curve in well-detected regions (e.g. channels 700-900 at loc2/3).
+sigma_smooth_ms = 50.0
+
+# Weight factor 3: Gaussian sigma for anchor disagreement (milliseconds).
+# Set by inspecting the disagreement plot: well-detected regions typically
+# show disagreement < 50 ms, noisy regions > 300 ms.
+sigma_anchor_ms = 20.0
+
+# Minimum weight for an observation to enter the inversion
+use_observation_min_weight = 0.5
+
+[inversion]
+channel_offset = 0
+control_selection_mode = 'quality_threshold'  # 'spacing' or 'quality_threshold'
+control_spacing = 20
+
+# Fraction of max S_k below which a channel is not considered as a control point.
+# 0.10 = exclude the bottom 10% of channels by effective observation count.
+# 0.20 = exclude the bottom 20%, etc
+control_quality_threshold = 0.60
+control_min_separation = 5
+control_max_gap = 50
+relative_only = true
+
+sound_speed = 1500.0
+channel_spacing = 1.02
+
+
+#hyperparameters for the inversion
+
+# the prior penalty is in meters -> how many meters uncertainty in either direction??
+prior_sigma_xy = 80
+prior_sigma_z = 1
+
+
+# this is also in meters, but it controls, between 3 control points, how many meters away from the straight line can they be to eachother
+curvature_sigma_xy = 0.1
+curvature_sigma_z = 0.005
+
+#also meters, this is 1.02 plus minus 0.08 meters (8cm)
+spacing_sigma = 0.08
+#anchor_bias_sigma = 0.02
+
+
+#in ms, says i concider detection with a residual og 1.5ms to be a small error
+rel_scale = 0.0015
+
+
+#huber_delta_abs = 3.0
+
+#this is how much to multiply rel_scale with to get big error, so more than 4.5 ms is big reisual error
+huber_delta_rel = 4.0
+
+
+max_nfev = 150
+
+[locations.loc2_tx3]
+folder = 'loc2_tx3'
+reference_channel = 1960
+anchor_times_s = [20.220960, 26.893240]
+anchor_labels = ['lfm35_45_rep1', 'lfm35_45_rep2']
+
+[locations.loc3_tx1]
+folder = 'loc3_tx1'
+reference_channel = 2100
+anchor_times_s = [20.410800, 27.478880]
+anchor_labels = ['lfm35_45_rep1', 'lfm35_45_rep2']
+
+[locations.loc4_tx1]
+folder = 'loc4_tx1'
+reference_channel = 530
+anchor_times_s = [20.954400, 27.961320]
+anchor_labels = ['lfm35_45_rep1', 'lfm35_45_rep2']
+
+[locations.loc5_tx1]
+folder = 'loc5_tx1'
+reference_channel = 750
+anchor_times_s = [14.229760, 21.142240]
+anchor_labels = ['lfm35_45_rep1', 'lfm35_45_rep2']
+
+[locations.loc6_tx1]
+folder = 'loc6_tx1'
+reference_channel = 1150
+anchor_times_s = [18.868360, 25.797560]
+anchor_labels = ['lfm35_45_rep1', 'lfm35_45_rep2']
+
+[locations.loc7_tx1]
+folder = 'loc7_tx1'
+reference_channel = 1650
+anchor_times_s = [17.548720, 24.570200]
+anchor_labels = ['lfm35_45_rep1', 'lfm35_45_rep2']
