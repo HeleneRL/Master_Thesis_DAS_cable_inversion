@@ -37,7 +37,7 @@ plt.rcParams.update({
 
 
 # ---------------------------------------------------------------------------
-# Naming helpers — single source of truth for reader-facing labels
+# Naming helpers 
 # ---------------------------------------------------------------------------
 
 def format_location(raw_location: str) -> str:
@@ -176,54 +176,6 @@ def add_local_enu_coordinates(df: pd.DataFrame, lat0_deg: float, lon0_deg: float
     return out
 
 
-# ---------------------------------------------------------------------------
-# Three-factor weight
-# ---------------------------------------------------------------------------
-
-# def make_weight(df: pd.DataFrame, wcfg: dict) -> pd.DataFrame:
-#     out = df.copy()
-
-#     sigma_smooth = float(wcfg["sigma_smooth_ms"])
-#     sigma_anchor = float(wcfg["sigma_anchor_ms"])
-#     pick_floor   = float(wcfg.get("pick_quality_floor", 0.05))
-#     min_weight   = float(wcfg.get("use_observation_min_weight", 0.02))
-
-#     q_pick = pd.to_numeric(out["pick_quality_score"], errors="coerce").fillna(pick_floor)
-#     q_pick = q_pick.clip(lower=pick_floor, upper=1.0)
-#     q_pick = np.where(out["base_valid"].astype(bool), q_pick, pick_floor)
-
-#     observed_ms   = 1000.0 * pd.to_numeric(out["observed_dt_ref_s"], errors="coerce").to_numpy(dtype=float)
-#     smooth_ref_ms = pd.to_numeric(out["location_median_smooth_ms"], errors="coerce").to_numpy(dtype=float)
-#     residual_ms   = observed_ms - smooth_ref_ms
-#     q_smooth = np.exp(-0.5 * (residual_ms / sigma_smooth) ** 2)
-#     q_smooth = np.where(np.isfinite(residual_ms), q_smooth, 1.0)
-
-#     disagreement_ms = pd.to_numeric(out["anchor_disagreement_ms"], errors="coerce").to_numpy(dtype=float)
-#     q_anchor = np.exp(-0.5 * (disagreement_ms / sigma_anchor) ** 2)
-#     q_anchor = np.where(np.isfinite(disagreement_ms), q_anchor, 1.0)
-
-#     w = q_pick * q_smooth * q_anchor
-#     w = np.clip(w, 0.0, 1.0)
-
-#     out["q_pick"]   = q_pick
-#     out["q_smooth"] = q_smooth
-#     out["q_anchor"] = q_anchor
-#     out["weight"]   = w
-
-#     out["use_observation"] = (
-#         out["observed_dt_ref_s"].notna()
-#         & out["tx_lat"].notna()
-#         & out["tx_lon"].notna()
-#         & out["prior_lat"].notna()
-#         & out["prior_lon"].notna()
-#         & out["tx_x_m"].notna()
-#         & out["tx_y_m"].notna()
-#         & out["prior_x_m"].notna()
-#         & out["prior_y_m"].notna()
-#         & (out["weight"] > min_weight)
-#     )
-
-#     return out
 
 
 def make_weight(df: pd.DataFrame, wcfg: dict) -> pd.DataFrame:
@@ -235,11 +187,7 @@ def make_weight(df: pd.DataFrame, wcfg: dict) -> pd.DataFrame:
     min_weight   = float(wcfg.get("use_observation_min_weight", 0.02))
 
     # ------------------------------------------------------------------
-    # Factor 1: pick quality — product of three sub-scores (logical AND).
-    # Raw ingredients were saved by the detector; we re-apply the same
-    # linear ramp scoring functions and combine as a product rather than
-    # the weighted sum the detector used internally.
-    # Breakpoint values match the detector exactly.
+    # Factor 1: pick quality 
     # ------------------------------------------------------------------
     def score_high_good(x, bad, good):
         return np.clip((x - bad) / (good - bad + 1e-12), 0.0, 1.0)
@@ -250,7 +198,7 @@ def make_weight(df: pd.DataFrame, wcfg: dict) -> pd.DataFrame:
     snr_raw  = pd.to_numeric(out["snr_like"],            errors="coerce").fillna(0.0).to_numpy()
     prom_raw = pd.to_numeric(out["peak_ratio_best_to_second"], errors="coerce").fillna(0.0).to_numpy()
     width_ms = pd.to_numeric(out["peak_width_ms"],       errors="coerce").fillna(40.0).to_numpy()
-    #near_edge = ensure_bool(out["near_window_edge"]).to_numpy(dtype=bool)
+
 
     q_snr   = score_high_good(snr_raw,                   bad=3.0,  good=10.0)
     q_prom  = score_high_good(np.minimum(prom_raw, 8.0), bad=1.05, good=1.5)
@@ -260,11 +208,8 @@ def make_weight(df: pd.DataFrame, wcfg: dict) -> pd.DataFrame:
         0.0,
     )
 
-    # Near-window-edge detections are zeroed — the edge guard from the
-    # methods chapter is implemented here as a multiplicative zero rather
-    # than a separate exclusion step.
+
     q_pick = q_snr * q_prom * q_sharp
-    #q_pick = np.where(near_edge, 0.0, q_pick)
     q_pick = np.clip(q_pick, pick_floor, 1.0)
 
    
@@ -412,8 +357,6 @@ def make_relative_arrival_by_location_plot(
     cbar.ax.tick_params(labelsize=12)
 
 
-    # axes[-1].set_xlabel("Channel")
-    # fig.suptitle(f"Relative arrival times coloured by weight — {sweep_label}")
 
     # fig.tight_layout(rect=[0, 0, 0.96, 1.0])  
     fname = f"relative_arrival_by_location_{anchor_label}.png"
