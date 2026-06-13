@@ -102,12 +102,12 @@ regularization). To do this, point `cable_estimate_csv` / the prior at the
 first-pass output and tighten `prior_sigma_xy` and the control-point density in
 the config for the second run. 
 
-OBS! you have to change the lat/lon column names as I was stupid enough to call
-it shift between lat and lat_deg between input outout, change the output to what
-the input expect. 
+OBS! you have to change the lat/lon column names when moving the updated cable estimate
+from being an output to being a prior. The prior should be lat/lon/depth, the output 
+cable has column names lat_deg, lon_deg, h_m..upsi hahha
 
 ## Notes
 
 - This is only a subset of the code that was developed and tested
   during the master thesis. If you think something is missing or you
-  are struggeling with the code, feel free to reach out on mail.
+  are struggeling with the code, feel free to reach out on email.
