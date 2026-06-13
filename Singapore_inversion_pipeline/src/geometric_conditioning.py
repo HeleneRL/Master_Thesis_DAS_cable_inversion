@@ -1,13 +1,3 @@
-"""
-geometric_conditioning.py
---------------------------
-Functions for computing and plotting geometric conditioning metrics
-(DOP, condition number kappa) and skyplots for TDOA cable localization.
-
-Usage:
-    plot_geometric_conditioning(fit=fit, layout=layout, out_dir=out_dir)
-"""
-
 from __future__ import annotations
 
 import warnings
@@ -19,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import re
 
+# Only for plotting, it is the complementary colors on the color wheel;)
 # ── Color scheme ──────────────────────────────────────────────────────────────
 C_ORANGE = "#E07B39"
 C_BLUE   = "#3B7FC4"
@@ -28,7 +19,7 @@ C_GRAY   = "#888888"
 C_PURPLE = "#8B5CA8"
 C_YELLOW = "#E8C534"
 
-# 6-color palette for source locations: blue, orange, green, red first
+# 6-color palette for source locations
 PALETTE  = [C_BLUE, C_ORANGE, C_GREEN, C_RED, C_PURPLE, C_YELLOW]
 
 
@@ -623,55 +614,6 @@ def _plot_skyplot_3d(
     fig.savefig(out_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved: {out_path}")
-
-
-# def _plot_angular_spread_histogram(
-#     metrics: pd.DataFrame,
-#     out_path: Path,
-# ) -> None:
-#     """
-#     Two-panel histogram of angular spread (circular std) across all channels.
-#     Left panel:  count of channels per 10-degree bin.
-#     Right panel: percentage of channels per 10-degree bin.
-#     """
-#     spreads = metrics["angular_spread_deg"].dropna()
-#     spreads = spreads[np.isfinite(spreads)]
-
-#     bins = np.arange(0, 185, 10)   # 0,10,20,...,180
-#     counts, edges = np.histogram(spreads, bins=bins)
-#     pct = counts / counts.sum() * 100
-#     centres = (edges[:-1] + edges[1:]) / 2
-#     width   = 8  # bar width in degrees
-
-#     fig, axes = plt.subplots(1, 2, figsize=(14, 5), sharey=False)
-
-#     axes[0].bar(centres, counts, width=width,
-#                 color=C_BLUE, edgecolor="white", linewidth=0.5, alpha=0.85)
-#     axes[0].set_xlabel("Angular spread (°, circular std)", fontsize=10)
-#     axes[0].set_ylabel("Number of channels", fontsize=10)
-#     axes[0].set_title("Angular spread distribution — channel count", fontsize=11)
-#     axes[0].set_xticks(bins)
-#     axes[0].grid(True, axis="y", alpha=0.2, linewidth=0.5)
-#     axes[0].spines[["top", "right"]].set_visible(False)
-
-#     axes[1].bar(centres, pct, width=width,
-#                 color=C_ORANGE, edgecolor="white", linewidth=0.5, alpha=0.85)
-#     axes[1].set_xlabel("Angular spread (°, circular std)", fontsize=10)
-#     axes[1].set_ylabel("Percentage of channels (%)", fontsize=10)
-#     axes[1].set_title("Angular spread distribution — percentage", fontsize=11)
-#     axes[1].set_xticks(bins)
-#     axes[1].grid(True, axis="y", alpha=0.2, linewidth=0.5)
-#     axes[1].spines[["top", "right"]].set_visible(False)
-
-#     fig.suptitle(
-#         f"Distribution of transmitter angular spread across {len(spreads)} channels",
-#         fontsize=12, y=1.02,
-#     )
-#     fig.tight_layout()
-#     fig.savefig(out_path, dpi=300, bbox_inches="tight")
-#     plt.close(fig)
-#     print(f"  Saved: {out_path}")
-
 
 
 
