@@ -101,10 +101,11 @@ def cumulative_length_3d(x, y, z):
 # ---------------------------------------------------------------------------
 
 def interpolate_along_polyline_2d(x, y, distances):
-    """
+    """    
     Interpolate (x, y) positions along a 2-D polyline at the given arc-length
     distances.  Points beyond the end of the polyline are extrapolated along
-    the last segment direction.
+    the last segment direction. The distances is a list, see the 3d horizontal 
+    thing below. 
     """
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
@@ -183,7 +184,7 @@ def build_3d_consistent_horizontal_distances(
     channel_spacing_m: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Convert nominal DAS channel spacing along the 3-D fibre into the
+    Convert nominal DAS channel spacing along the 3-D fiber into the
     corresponding horizontal walking distances along the 2-D prior track.
 
     The depth prior is already channel-indexed.  Between neighbouring
@@ -253,10 +254,7 @@ def main() -> None:
     n_channels  = last_channel - first_channel + 1
     channel_ids = np.arange(first_channel, last_channel + 1)
 
-    # The Singapore depth estimate is channel-indexed.  We therefore first
-    # assign/smooth depth by channel, then use adjacent depth differences to
-    # choose how far to walk horizontally along the 2-D prior track so that
-    # neighbouring channels are separated by channel_spacing_m in 3-D.
+
     smooth_sigma = float(pcfg.get("depth_smooth_sigma_channels", 20.0))
     depth_smooth = build_smoothed_depth_prior(
         channel_ids=channel_ids,
