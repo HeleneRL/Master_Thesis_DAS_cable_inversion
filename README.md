@@ -160,9 +160,9 @@ signal and acquisition.
 | --- | --- |
 | `sound_speed` | 1500 m/s nominal seawater (Singapore). |
 | `channel_spacing` | 1.02 m, the DAS gauge spacing. |
-| `prior_sigma_xy` / `prior_sigma_z` | How far the cable may move from the prior, in metres. |
-| `curvature_sigma_xy` / `curvature_sigma_z` | How sharply it may bend. |
-| `spacing_sigma` | Allowed deviation in channel spacing. |
+| `prior_sigma_xy` / `prior_sigma_z` | How far the cable is likely move from the prior, in metres. |
+| `curvature_sigma_xy` / `curvature_sigma_z` | How sharply it is likely to bend. |
+| `spacing_sigma` | Allowed deviation in channel spacing, in meters. |
 | `rel_scale`, `huber_delta_rel` | Residual scale / robust-loss knee. |
 
 The meaning of each is documented inline in the config and in Section 4.8 and
