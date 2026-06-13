@@ -4,7 +4,7 @@ This folder contains the pipeline that estimates a submarine
 fiber-optic cable's 3D geometry from DAS-recorded acoustic arrival times, as
 described in Chapter 4 of the thesis. It is the Singapore branch of the
 framework; the dataset-independent inversion core (`invert_cable_diagnostics.py`)
-is reusable for any dataset (see the top-level `README.txt` for scope).
+is reusable for any dataset (see the top-level `README.md` for scope).
 
 ## Folder layout
 
