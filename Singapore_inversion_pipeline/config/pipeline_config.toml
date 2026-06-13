@@ -35,9 +35,7 @@ channel_max = 2267
 rolling_median_win = 41
 rolling_mean_win = 61
 min_valid_points_per_group = 25
-# min_periods is derived as max(3, max(rolling_median_win, rolling_mean_win) // 5)
-# but can be set explicitly here to override
-# min_periods = 8
+
 
 [transmitter]
 tx_depth_m = -3.0
@@ -46,7 +44,7 @@ tx_depth_m = -3.0
 channel_spacing_m = 1.02
 first_channel = 348
 last_channel = 2267
-smooth_depth = false
+#smooth_depth = false
 smooth_window_m = 15.0
 min_window_samples = 3
 depth_smooth_sigma_channels = 20.0
@@ -58,17 +56,11 @@ enu_lat0_deg = 1.2160
 enu_lon0_deg = 103.8518
 enu_h0_m = 0.0
 
-# Weight factor 1: pick quality floor for invalid/edge detections
+# Set very low on purpose, this gives many noisy picks but the weight scheme filters them afterwards
 pick_quality_floor = 0.05
 
-# Weight factor 2: Gaussian sigma for residual of pick to location median
-# smooth curve (milliseconds).  Set by inspecting the spread of picks around
-# the smooth curve in well-detected regions (e.g. channels 700-900 at loc2/3).
 sigma_smooth_ms = 50.0
 
-# Weight factor 3: Gaussian sigma for anchor disagreement (milliseconds).
-# Set by inspecting the disagreement plot: well-detected regions typically
-# show disagreement < 50 ms, noisy regions > 300 ms.
 sigma_anchor_ms = 20.0
 
 # Minimum weight for an observation to enter the inversion
@@ -79,9 +71,7 @@ channel_offset = 0
 control_selection_mode = 'quality_threshold'  # 'spacing' or 'quality_threshold'
 control_spacing = 20
 
-# Fraction of max S_k below which a channel is not considered as a control point.
-# 0.10 = exclude the bottom 10% of channels by effective observation count.
-# 0.20 = exclude the bottom 20%, etc
+# This scales to transmission count so 0.6*12=7.2...don't ask
 control_quality_threshold = 0.60
 control_min_separation = 5
 control_max_gap = 50
@@ -93,12 +83,15 @@ channel_spacing = 1.02
 
 #hyperparameters for the inversion
 
-# the prior penalty is in meters -> how many meters uncertainty in either direction??
+# the prior penalty is in meters -> how many meters on average is do you think the cable should be allowed to move without penalty?
+# Want to move more? Ok but be sure, I set this to 5 meters ones and the inversion still moved the cable 71 m and just took alot of additional cost
+# for violating it
 prior_sigma_xy = 80
 prior_sigma_z = 1
 
 
-# this is also in meters, but it controls, between 3 control points, how many meters away from the straight line can they be to eachother
+# this is in m^(-1), and it sets expected bend radius 0.1 = 1/10 = 1/R where R is the bend radius that the inversion can happily make almost
+#completly without additional cost. Want a sharper bend? Ok but be really sure (if the data term is vert strong it will bend)
 curvature_sigma_xy = 0.1
 curvature_sigma_z = 0.005
 
