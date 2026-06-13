@@ -73,7 +73,6 @@ def linear_fill_to_full_channels(prior_geom):
 def build_observation_table(df, channel_offset):
     obs = df.copy()
 
-    # Coerce only the bool columns that still exist in the new pipeline
     bool_cols = ["use_observation", "passed_snr_threshold", "near_window_edge", "base_valid"]
     for c in bool_cols:
         if c in obs.columns and obs[c].dtype == object:
@@ -111,8 +110,6 @@ def build_observation_table(df, channel_offset):
 def summarize_channel_control_quality(obs: pd.DataFrame) -> pd.DataFrame:
     """
     Compute S_k = sum of observation weights for each channel.
-
-    This is the control quality score used to rank candidate control points.
     """
     grp = (
         obs.groupby("channel_eff")
