@@ -22,13 +22,12 @@ AX_MIN = -0.1
 AX_MAX = 0.3
 WEIGHT_THRESHOLDS = [0.5, 0.7, 0.9]
 
-# Consistent colour for "estimated cable" elements
 CABLE_BLUE = "#1f77b4"
 
 
 
 # ---------------------------------------------------------------------------
-# Naming helpers 
+# helpers 
 # ---------------------------------------------------------------------------
 
 def format_location(raw_location: str) -> str:
@@ -65,9 +64,6 @@ def format_anchor_label(anchor_id: str) -> str:
     return text
 
 
-# ---------------------------------------------------------------------------
-# Small helpers
-# ---------------------------------------------------------------------------
 
 def ensure_bool(series: pd.Series) -> pd.Series:
     if series.dtype == bool:
@@ -225,14 +221,7 @@ def load_inputs(config_path, input_csv, inversion_output_dir, truth_csv):
     tx_tbl = build_tx_table(raw, fit)
     return cfg, raw, layout, ctrl, fit, q, truth, tx_tbl, (lat0, lon0, h0), input_csv, inversion_output_dir, truth_csv
 
-
-# ---------------------------------------------------------------------------
-# Uncertainty tube
-# Tube half-width = weighted std of per-transmission residuals, converted to
-# metres via sound speed, then Gaussian-smoothed.  Computed only from
-# observations with weight >= min_weight_for_tube to exclude noisy detections
-# that inflate the spread without contributing to the inversion.
-# ---------------------------------------------------------------------------
+#Builds the uncertainty tube
 
 def build_uncertainty_tube(
     layout: pd.DataFrame,
